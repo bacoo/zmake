@@ -1,0 +1,20 @@
+syntax = "proto3";
+
+option cc_enable_arenas = true;
+
+enum StatusCode {
+    OK = 0;
+    InvalidData = 1;
+    UNKNOWN = 500;
+};
+
+enum ErrCode {
+    ErrCode_None = 0;
+    ErrCode_UNKNOWN = 500;
+};
+
+message ReturnInfo {
+    StatusCode status_code = 1;
+    string err_msg = 2;
+    ErrCode err_code = 3;
+};

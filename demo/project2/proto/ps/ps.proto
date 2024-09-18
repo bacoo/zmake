@@ -1,0 +1,19 @@
+syntax = "proto3";
+
+option cc_enable_arenas = true;
+option cc_generic_services = true;
+
+import "proto/base/base.proto";
+import "proto/base/basic.proto";
+
+message SyncRequest {
+    BasicInfo bi = 1;
+};
+
+message SyncResponse {
+  ReturnInfo ret_info = 500;
+};
+
+service PSService {
+  rpc sync(SyncRequest) returns (SyncResponse);
+};

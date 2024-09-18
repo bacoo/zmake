@@ -1,0 +1,8 @@
+syntax = "proto3";
+
+option cc_enable_arenas = true;
+
+message BasicInfo {
+    string name = 1;
+    string info = 2;
+};

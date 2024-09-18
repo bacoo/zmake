@@ -58,7 +58,6 @@ ZConfig* DefaultBinaryConfig();        //configs for binary's link
 //  3. "dir1/**.cpp": all cpp files under "dir1/" recursively,
 //      for '**' usage, we don't support 'abc_**.cpp';
 void SetObjsFlags(const std::vector<std::string>& paths, const std::vector<std::string>& flags);
-
 //the usages of 'rule' and 'exclude_rules' are the same as the 'path' of SetObjectConfig
 std::vector<std::string> Glob(const std::vector<std::string>& rules,
         const std::vector<std::string>& exclude_rules = {}, const std::string& dir = ".");

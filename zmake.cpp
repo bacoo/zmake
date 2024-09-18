@@ -302,28 +302,36 @@ ZFile*& AccessFileInternal(const std::string& file, bool create_file = false,
 
 std::vector<std::string> Glob(const std::vector<std::string>& rules,
         const std::vector<std::string>& exclude_rules, const std::string& dir) {
-    std::vector<std::regex> exclude_regexes = {std::regex("^BUILD.cpp$")};
+    std::vector<std::regex> exclude_regexes = {std::regex("(^|/)BUILD.cpp$")};
     for (auto exclude_rule : exclude_rules) {
         exclude_rule = StringReplaceAll(exclude_rule, ".", "\\.");
+        exclude_rule = StringReplaceAll(exclude_rule, "**", "*");
         exclude_rule = StringReplaceAll(exclude_rule, "*", "[^/]*");
-        exclude_regexes.emplace_back("^" + exclude_rule + "$");
+        exclude_regexes.emplace_back(exclude_rule + "$");
     }
     auto hit_exclude_rule_fn = [&](const std::string& f) -> bool {
         for (const auto& r : exclude_regexes) if (std::regex_search(f, r)) return true;
         return false;
     };
     std::vector<std::string> result;
+    std::set<std::string> uniq_results;
     for (auto rule : rules) {
+        bool recursive = std::string::npos != rule.find("**");
         rule = StringReplaceAll(rule, ".", "\\.");
+        rule = StringReplaceAll(rule, "**", "*");
         rule = StringReplaceAll(rule, "*", "[^/]*");
-        std::regex r("^" + rule + "$");
-        for (auto f : ListFilesUnderDir(dir, "", true)) {
+        std::regex r(rule + "$");
+        for (auto f : ListFilesUnderDir(dir, "", recursive)) {
+            if (uniq_results.count(f)) continue;
             auto rf = f; //rf(reg file): file for matching regex rules
             if (StringBeginWith(rf, dir)) {
                 rf = rf.substr(dir.size());
                 if ('/' == rf.at(0)) rf = rf.substr(1);
             }
-            if (std::regex_search(rf, r) && !hit_exclude_rule_fn(rf)) result.push_back(f);
+            if (std::regex_search(rf, r) && !hit_exclude_rule_fn(rf)) {
+                uniq_results.insert(f);
+                result.push_back(f);
+            }
         }
     }
     return result;

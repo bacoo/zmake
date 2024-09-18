@@ -1,2 +1,12 @@
 1. install zmake
-2.
+  git clone https://github.com/bacoo/zmake.git
+  cd zmake
+  make -j
+
+2. build demo/project1
+  cd demo/project1
+  zmake -e
+
+3. build demo/project2
+  cd demo/project2
+  zmake -v

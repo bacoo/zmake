@@ -20,7 +20,7 @@ libzmake.a : zmake.o BUILD_main.o
 	ar crs $@ $^
 
 clean:
-	rm -rf libzmake.a zmake.o BUILD_main.o zmake ~/bin/*zmake* BUILD .zmade zmake.dSYM
+	rm -rf libzmake.a zmake.o BUILD_main.o zmake .zmade zmake.dSYM
 
 scp:
 	rsync -r zmake.h zmake.cpp zmake_helper.h zmake_util.h Makefile main.cpp BUILD_main.cpp demo 78:~/zmake/

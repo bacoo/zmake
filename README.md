@@ -21,6 +21,8 @@ link commands by `find .zmade/ -name '*.cmd'`;
 
 Using `zmake -h` to see all options.
 
+Here is a [PPT](https://docs.google.com/presentation/d/1OAGkP0JPL35BVcp9hyJFMPcm3qqrBYYGl1hhDyuVBco/edit#slide=id.g30258cc35aa_0_0) for introduction zmake.
+
 Report bugs to [bacoo_zh@163.com](bacoo_zh@163.com)
 
 ## Install

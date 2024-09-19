@@ -24,7 +24,7 @@ void PrintHelpInfo() {
            "  define global common vars/funcs/rules in '${project_root}/WORKSPACE.h';\n"
            "\n"
            "  See all available C++ APIs in '~/bin/zmake_files/zmake.h' and the demo under\n"
-           "  '~/bin/zmake_files/demo/';\n"
+           "  '~/bin/zmake_files/demo/', which is a quite good tutorial for you;\n"
            "\n"
            "  Firstly, use `zmake` to build your project(it'll firstly generate 'BUILD.exe'\n"
            "  under your project root dir and then run `./BUILD.exe` to build), and you can\n"

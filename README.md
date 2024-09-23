@@ -5,7 +5,9 @@ in C++, so you can use std::string/std::vector/std::map these STL containers
 and you can define any variable, function or class. Unbelievable, right?
 
 Define your building rules in 'BUILD.inc' or 'BUILD.cpp' under each dir, and
-define global common vars/funcs/rules in '${project_root}/WORKSPACE.h';
+define global common vars/funcs/rules in '${project_root}/WORKSPACE.h', and put
+some preparation works(import other libraries or adjust default flags/compilers)
+into root BUILD.inc(normally, it's '${project_root}/BUILD.inc').
 
 See all available C++ APIs in [zmake.h](https://github.com/bacoo/zmake/blob/main/zmake.h) and the demo under [demo](https://github.com/bacoo/zmake/tree/main/demo);
 

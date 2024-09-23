@@ -107,7 +107,8 @@ public:
         {
             static std::mutex s_mtx;
             std::lock_guard<std::mutex> guard(s_mtx);
-            ColorPrint(StringPrintf("@ Build target %s, file: %s, spend: %d ms\n", f->_name.data(),
+            ColorPrint(StringPrintf("@ Build target %s %s, file: %s, spend: %d ms\n",
+                    f->_name.data(), ret_code ? "failed" : "OK",
                     f->_file.data(), spend_ms), CT_BRIGHT_YELLOW);
             if (*AccessVerboseMode()) printf("# %s\n", exec_cmd.data());
         }
@@ -307,7 +308,11 @@ std::vector<std::string> Glob(const std::vector<std::string>& rules,
         exclude_rule = StringReplaceAll(exclude_rule, ".", "\\.");
         exclude_rule = StringReplaceAll(exclude_rule, "**", "*");
         exclude_rule = StringReplaceAll(exclude_rule, "*", "[^/]*");
-        exclude_regexes.emplace_back(exclude_rule + "$");
+        if (std::string::npos == exclude_rule.find("/")) {
+            exclude_regexes.emplace_back("(^|/)" + exclude_rule + "$");
+        } else {
+            exclude_regexes.emplace_back(exclude_rule + "$");
+        }
     }
     auto hit_exclude_rule_fn = [&](const std::string& f) -> bool {
         for (const auto& r : exclude_regexes) if (std::regex_search(f, r)) return true;
@@ -317,6 +322,7 @@ std::vector<std::string> Glob(const std::vector<std::string>& rules,
     std::set<std::string> uniq_results;
     for (auto rule : rules) {
         bool recursive = std::string::npos != rule.find("**");
+        recursive = recursive || std::string::npos != rule.find("/"); //detect sub dir
         rule = StringReplaceAll(rule, ".", "\\.");
         rule = StringReplaceAll(rule, "**", "*");
         rule = StringReplaceAll(rule, "*", "[^/]*");

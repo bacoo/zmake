@@ -14,7 +14,8 @@ namespace zmake {
     extern std::string GetBuildPath(const std::string& path);
     extern void ProcessDepsRecursively(const std::vector<ZFile*>& deps,
             const std::function<void(ZFile*)>& fn, std::set<ZFile*>* uniq_deps = nullptr);
-    struct ZF {
+    class ZF {
+    public:
         static void ProcessObjectUsers(ZObject* obj) {
             ProcessDepsRecursively(obj->_users, [&](ZFile* dep) {
                 if (FT_LIB_FILE == dep->GetFileType()) AddTarget(dep);

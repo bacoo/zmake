@@ -1,5 +1,5 @@
 auto libs = DownloadLibraries("@protobuf", "https://github.com/protocolbuffers/protobuf/releases/download/v3.15.8/protobuf-cpp-3.15.8.tar.gz", true,
-    "CXXFLAGS=-fPIE ./configure --prefix=$(readlink -f ..) && make -j && make -j install");
+    "CXXFLAGS=-fPIE ./configure --prefix=$(readlink -f ..) && make && make install");
 if (libs.empty()) throw "download and compile protobuf failed";
 auto protoc_path = libs[0]->GetLinkDir() + "/../bin/protoc";
 if (!std::filesystem::exists(protoc_path)) throw "no protoc under protobuf lib";

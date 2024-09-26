@@ -309,6 +309,7 @@ protected:
     bool _is_whole_archive = false;
     bool _added_protobuf_lib_dep = false;
     std::vector<ZObject*> _objs;
+    std::vector<std::string> _objs_flags;
     std::vector<ZLibrary*> _libs;
     std::vector<ZLibrary*> _whole_archive_libs;
     std::set<std::string> _inc_dirs;
@@ -338,6 +339,7 @@ protected:
     virtual bool ComposeCommand();
 
     std::vector<ZObject*> _objs;
+    std::vector<std::string> _objs_flags;
     std::vector<ZFile*> _libs;
     std::vector<ZLibrary*> _whole_archive_libs;
     std::vector<std::string> _link_dirs;

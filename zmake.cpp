@@ -865,6 +865,7 @@ ZLibrary* ZLibrary::AddObj(ZFile* obj) {
         obj->GetConfig()->SetFlag("-fPIC");
     }
     auto f = (ZObject*)obj;
+    f->SetFlags(_objs_flags);
     _objs.push_back(f);
     ZF::AddObjectUser(f, this);
     AddDep(f);
@@ -874,6 +875,7 @@ const std::vector<ZObject*>& ZLibrary::GetObjs() const {
     return _objs;
 }
 ZLibrary* ZLibrary::SetObjsFlags(const std::vector<std::string>& flags) {
+    for (auto f : flags) _objs_flags.push_back(f);
     for (auto obj : _objs) obj->SetFlags(flags);
     return this;
 }
@@ -1029,6 +1031,7 @@ ZBinary* ZBinary::AddObj(ZFile* obj) {
         ZTHROW("for binary(%s), '%s' is not an ZObject instance", FP(this), FP(obj));
     }
     auto f = (ZObject*)obj;
+    f->SetFlags(_objs_flags);
     _objs.push_back(f);
     ZF::AddObjectUser(f, this);
     AddDep(f);
@@ -1038,6 +1041,7 @@ const std::vector<ZObject*>& ZBinary::GetObjs() const {
     return _objs;
 }
 ZBinary* ZBinary::SetObjsFlags(const std::vector<std::string>& flags) {
+    for (auto f : flags) _objs_flags.push_back(f);
     for (auto obj : _objs) obj->SetFlags(flags);
     return this;
 }

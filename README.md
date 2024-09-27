@@ -50,3 +50,8 @@ You need to build [project1](https://github.com/bacoo/zmake/tree/main/demo/proje
 
 * cd demo/project2
 * zmake -v
+
+3. build demo/project3/
+
+* cd demo/project3/
+* zmake -s

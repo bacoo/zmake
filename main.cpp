@@ -12,6 +12,7 @@ namespace fs = std::filesystem;
 
 namespace zmake {
     extern std::string GetBuildPath(const std::string& path);
+    extern std::string ExecuteCmd(const std::string& cmd, int* ret_code = nullptr);
 }
 
 int main(int argc, char* argv[]) {
@@ -20,6 +21,26 @@ int main(int argc, char* argv[]) {
         PrintHelpInfo();
         return 0;
     }
+
+    if (CommandArgs::Has("-O")) {
+        DefaultObjectConfig()->SetFlag(StringPrintf("-O%d", CommandArgs::Get<int>("-O")));
+        DefaultBinaryConfig()->SetFlag(StringPrintf("-O%d", CommandArgs::Get<int>("-O")));
+    }
+    if (CommandArgs::Has("-d")) {
+        int debug_level = 1;
+        try { debug_level = CommandArgs::Get<int>("-d"); } catch (...) {}
+        SetDebugLevel(debug_level);
+    }
+    SetVerboseMode(CommandArgs::Has("-v"));
+
+    if (CommandArgs::Has("-s")) {
+        auto binary_name = ExecuteCmd("grep -rPl '^\\s*int\\s+main\\s*\\(' . | awk -F'/' "
+                "'{print substr($NF, 1, match($NF,\"\\\\..*$\")-1);exit}'");
+        AccessBinary(binary_name)->AddObjs(Glob({"**.cpp", "**.cc", "**.c"}));
+        BuildAll(CommandArgs::Has("-e"), CommandArgs::Get<int>("-j", -1));
+        return 0;
+    }
+
 #ifdef __MACH__
     std::string zmake_dir = "$(dirname $(which zmake))";
 #else
@@ -39,10 +60,6 @@ int main(int argc, char* argv[]) {
         "-g",
         "-Wl,-no-as-needed -lpthread -Wl,-as-needed",
     });
-    if (CommandArgs::Has("-O")) {
-        DefaultObjectConfig()->SetFlag(StringPrintf("-O%d", CommandArgs::Get<int>("-O")));
-        DefaultBinaryConfig()->SetFlag(StringPrintf("-O%d", CommandArgs::Get<int>("-O")));
-    }
 
     auto build_root = *AccessBuildRootDir();
 
@@ -92,18 +109,12 @@ int main(int argc, char* argv[]) {
         exec->AddObj(obj);
     }
     if (exec->GetObjs().empty()) {
-        throw std::runtime_error("no BUILD.cpp under current dir and its sub dirs");
+        throw std::runtime_error("no BUILD.(inc|cpp) under current dir and its sub dirs");
     }
 
     AddTarget(exec);
     RegisterTargetInstall(exec, "./BUILD.exe", fs::copy_options::create_symlinks);
 
-    if (CommandArgs::Has("-d")) {
-        int debug_level = 1;
-        try { debug_level = CommandArgs::Get<int>("-d"); } catch (...) {}
-        SetDebugLevel(debug_level);
-    }
-    SetVerboseMode(CommandArgs::Has("-v"));
     BuildAll(CommandArgs::Has("-e"), CommandArgs::Get<int>("-j", -1));
     InstallAll();
 

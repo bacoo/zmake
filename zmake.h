@@ -110,9 +110,9 @@ ZLibrary* ImportLibrary(const std::string& lib_name, const std::vector<std::stri
 //with "@curl/curl_main" and "@curl/curl_net" respectively.
 std::vector<ZLibrary*> ImportLibraries(const std::string& pkg_name, const std::string& dir);
 //by default, use following shell script to compile, and you can replace it by 'compile_cmd':
-//  ./configure --prefix=$(readlink -f ..) && make -j && make -j install
+//  ./configure --prefix=$(readlink -f ..) && make -j2 && make install
 std::vector<ZLibrary*> DownloadLibraries(const std::string& pkg_name, const std::string& url,
-        bool need_compile = false, const std::string& compile_cmd = "");
+        const std::string& compile_cmd = "", bool header_lib = false);
 
 //if you have another project built by zmake, you can easily import it by this API, such as
 //  ImportExternalZmakeProject("common_utils", "/workspace/common_utils/");

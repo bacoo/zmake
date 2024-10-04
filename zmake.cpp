@@ -1326,29 +1326,47 @@ std::vector<ZLibrary*> ImportLibraries(const std::string& pkg_name, const std::s
     return result;
 }
 std::vector<ZLibrary*> DownloadLibraries(const std::string& pkg_name,
-        const std::string& url, bool need_compile, const std::string& compile_cmd) {
-    if ('@' == pkg_name.at(0)) return DownloadLibraries(pkg_name.substr(1), url, need_compile);
+        const std::string& url, const std::string& compile_cmd, bool header_lib) {
+    if ('@' == pkg_name.at(0)) {
+        return DownloadLibraries(pkg_name.substr(1), url, compile_cmd, header_lib);
+    }
     auto pkg_dir = *AccessBuildRootDir() + ".downloads/" + pkg_name;
     if (fs::exists(pkg_dir + "/.done")) return ImportLibraries(pkg_name, pkg_dir);
-    if (*AccessDebugLevel() > 0) {
-        printf("> download%s '%s' libraries from '%s'\n", need_compile ? " and compile" : "",
-                pkg_name.data(), url.data());
-    }
-    ExecuteCmd(StringPrintf("mkdir -p %s\n"
+    else fs::remove_all(pkg_dir);
+    auto cmd = StringPrintf("mkdir -p %s\n"
             "cd %s\n"
             "wget -q \"%s\"\n"
             "f=$(ls)\n"
-            "tar zxf $f || unzip $f\n"
+            "tar zxf $f --no-same-owner || unzip $f\n"
             "rm -f $f\n"
-            "[ 0 -eq %d ] && exit 0\n"
             "f=$(ls)\n"
             "cd $f\n"
             "%s #compile cmd\n"
+            "[ \"$?\" -ne 0 ] && exit $?\n"
             "cd ..\n"
             "rm -rf $f && touch .done", pkg_dir.data(), pkg_dir.data(),
-            url.data(), need_compile, "" != compile_cmd ? compile_cmd.data() :
-                    "./configure --prefix=$(readlink -f ..) && make -j && make -j install"));
-    return ImportLibraries(pkg_name, pkg_dir);
+            url.data(), "" != compile_cmd ? compile_cmd.data() :
+                    "./configure --prefix=$(readlink -f ..) && make -j2 && make install");
+    if (*AccessDebugLevel() > 0) {
+        printf("> download '%s' libraries from '%s' using the script \n(%s)\n",
+                pkg_name.data(), url.data(), cmd.data());
+    }
+    int ret_code = 0;
+    ExecuteCmd(cmd, &ret_code);
+    std::vector<ZLibrary*> libs;
+    if (0 == ret_code) {
+        if (!header_lib) libs = ImportLibraries(pkg_name, pkg_dir);
+        else {
+            auto lib = ImportLibrary(pkg_name, {pkg_dir + "/include"}, "");
+            if (lib) libs.push_back(lib);
+        }
+    }
+    if (libs.empty() || 0 != ret_code) {
+        fs::remove(pkg_dir + "/.done");
+        ZTHROW("download '%s' libraries from '%s' failed, ret_code:%d",
+                pkg_name.data(), url.data(), ret_code);
+    }
+    return libs;
 }
 void ImportExternalZmakeProject(const std::string& ext_prj_name, const std::string& ext_prj_path) {
     std::string name = ext_prj_name;

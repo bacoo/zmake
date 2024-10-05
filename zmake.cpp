@@ -1331,8 +1331,16 @@ std::vector<ZLibrary*> DownloadLibraries(const std::string& pkg_name,
         return DownloadLibraries(pkg_name.substr(1), url, compile_cmd, header_lib);
     }
     auto pkg_dir = *AccessBuildRootDir() + ".downloads/" + pkg_name;
-    if (fs::exists(pkg_dir + "/.done")) return ImportLibraries(pkg_name, pkg_dir);
-    else fs::remove_all(pkg_dir);
+    if (!fs::exists(pkg_dir + "/.done")) fs::remove_all(pkg_dir);
+    else {
+        if (!header_lib) return ImportLibraries(pkg_name, pkg_dir);
+        else {
+            auto lib = ImportLibrary(pkg_name, {pkg_dir + "/include"}, "");
+            if (!lib) ZTHROW("found .done file, but import '%s' header lib from '%s' failed",
+                    pkg_name.data(), pkg_dir.data());
+            return {lib};
+        }
+    }
     auto cmd = StringPrintf("mkdir -p %s\n"
             "cd %s\n"
             "wget -q \"%s\"\n"

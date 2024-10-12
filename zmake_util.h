@@ -171,7 +171,6 @@ void ColorPrint(const std::string& s, ColorType ct, FILE* fp = stdout) {
 }
 
 template <typename... Args>
-__attribute__((weak, unused))
 std::string StringPrintf(const std::string& fmt, Args... args) {
     size_t size = std::snprintf(nullptr, 0, fmt.data(), args...) + 1;  // include '\0'
     auto buf = std::make_unique<char[]>(size);
@@ -195,7 +194,6 @@ std::vector<std::string> StringSplit(const std::string& s, char delim = ' ', boo
     return tokens;
 }
 template <typename T>
-__attribute__((weak, unused))
 std::string StringCompose(const T& container, char delim = ';') {
     if (container.empty()) return "";
     std::ostringstream oss;

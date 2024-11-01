@@ -763,9 +763,7 @@ ZObject::ZObject(const std::string& src_file, const std::string& obj_file):
         auto parts = StringSplit(s, ':');
         if (2 != parts.size()) ZTHROW("can't parse the dependence file(%s)", dep_file.data());
         for (auto dep : StringSplit(StringRightTrim(StringReplaceAll(parts[1], "\\\n", "")), ' ')) {
-            if (!fs::exists(dep)) {
-                ZTHROW("the dep(%s) doesn't exist for %s", dep.data(), _src.data());
-            }
+            //skip check fs::exists(dep), e.g. header file renamed
             AddDep(AccessFile(dep));
         }
     };

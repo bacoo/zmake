@@ -53,7 +53,7 @@ struct TaskRunnerPool {
 
     void Start() {
         for (int i = 0; i < _thread_num; ++i) {
-            _runners.emplace_back(std::thread([this] {
+            _runners.emplace_back([this] {
                 while (!_stop_flag) {
                     std::string task_sign;
                     Task task;
@@ -84,7 +84,7 @@ struct TaskRunnerPool {
                         RunWithLock(_mutex, [this, &task_sign]() { _running_tasks.erase(task_sign); });
                     }
                 }
-            }));
+            });
         }
     }
 

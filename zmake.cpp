@@ -794,7 +794,7 @@ void ZObject::AddObjectUser(ZFile* file) {
 
 bool ZObject::ComposeCommand() {
     if ("" == _cmd) {
-        _cmd = StringPrintf("%s -c -o %s -MMD -MF %s.d", _compiler.data(), _file.data(), _file.data());
+        _cmd = StringPrintf("%s -c -o %s -MD -MF %s.d", _compiler.data(), _file.data(), _file.data());
 
         std::set<ZFile*> uniq_deps;
         auto handle_dep_fn = [&](ZFile* dep) {

@@ -114,6 +114,7 @@ int main(int argc, char* argv[]) {
 
     AddTarget(exec);
     RegisterTargetInstall(exec, "./BUILD.exe", fs::copy_options::create_symlinks);
+    if (!fs::exists("bin")) fs::create_directory_symlink(build_root, "bin");
 
     BuildAll(CommandArgs::Has("-e"), CommandArgs::Get<int>("-j", -1));
     InstallAll();

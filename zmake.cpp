@@ -579,7 +579,10 @@ void ZFile::DumpDepsRecursively(std::string* dump_sinker) const {
     std::string indent;
     std::function<void(const ZFile*)> process_dep_fn;
     process_dep_fn = [&](const ZFile* file) {
-        oss << indent << file->GetFilePath() << std::endl;
+        auto p = file->GetFilePath();
+        if (StringBeginWith(p, "/usr/include/")) return;
+        if (FT_HEADER_FILE == file->GetFileType() && StringBeginWith(p, "/usr/")) return;
+        oss << indent << (indent.empty() ? "" : " ") << p << std::endl;
         indent += ".";
         for (auto dep : file->GetDeps()) process_dep_fn(dep);
         indent.pop_back();

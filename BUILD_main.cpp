@@ -71,7 +71,9 @@ int main(int argc, char* argv[]) {
 
     if (CommandArgs::Has("-l")) {
         std::set<ZFile*> targets;
-        for (auto t : ListAllTargets(CommandArgs::Get<std::string>("-c", "."))) targets.insert(t);
+        for (auto t : ListAllTargets(CommandArgs::Get<std::string>("-c", "."))) {
+            if (FT_HEADER_FILE != t->GetFileType()) targets.insert(t);
+        }
         for (auto& x : GlobalFiles()) {
             if (!x.second || !targets.count(x.second)) continue;
             printf("target:%s, path:%s\n", x.first.data(), x.second->GetFilePath().data());

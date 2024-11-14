@@ -11,7 +11,10 @@ using namespace zmake;
 namespace fs = std::filesystem;
 
 namespace zmake {
+    extern std::map<std::string, ZFile*>& GlobalFiles();
     extern std::string GetBuildPath(const std::string& path);
+    extern ZFile*& AccessFileInternal(const std::string& file, bool create_file = false,
+        bool need_build = false, FileType ft = FT_NONE);
     extern void ProcessDepsRecursively(const std::vector<ZFile*>& deps,
             const std::function<void(ZFile*)>& fn, std::set<ZFile*>* uniq_deps = nullptr);
     class ZF {
@@ -66,11 +69,24 @@ int main(int argc, char* argv[]) {
         fs::current_path(old_cwd);
     }
 
+    if (CommandArgs::Has("-l")) {
+        std::set<ZFile*> targets;
+        for (auto t : ListAllTargets(CommandArgs::Get<std::string>("-c", "."))) targets.insert(t);
+        for (auto& x : GlobalFiles()) {
+            if (!x.second || !targets.count(x.second)) continue;
+            printf("target:%s, path:%s\n", x.first.data(), x.second->GetFilePath().data());
+        }
+        return 0;
+    }
+
     if (CommandArgs::Has("-A")) {
         auto t = CommandArgs::Get<std::string>("-A", "");
-        ZFile* f = AccessFile(t);
-        if (!f) f = AccessFile(GetBuildPath(t));
-        if (!f) ZTHROW("can't find the target '%s'", t.data());
+        ZFile* f = AccessFileInternal(t);
+        if (!f) f = AccessFileInternal(GetBuildPath(t));
+        if (!f) {
+            fprintf(stderr, "[Error]can't find the target '%s'\n", t.data());
+            return 1;
+        }
         f->DumpDepsRecursively();
         return 0;
     }
@@ -85,8 +101,8 @@ int main(int argc, char* argv[]) {
         if (FT_OBJ_FILE == f->GetFileType()) ZF::ProcessObjectUsers((ZObject*)f);
     }
 
-    if (CommandArgs::Has("-b")) {
-        for (auto t : ListAllTargets(CommandArgs::Get<std::string>("-b", "."))) AddTarget(t);
+    if (CommandArgs::Has("-c")) {
+        for (auto t : ListAllTargets(CommandArgs::Get<std::string>("-c", "."))) AddTarget(t);
     }
 
     ColorPrint("* Start to build all targets\n", CT_BRIGHT_CYAN);

@@ -33,7 +33,7 @@ struct GlobalResource {
         std::call_once(s_flag, [&initializer]() { initializer(Resource()); });
     }
 };
-constexpr auto GlobalFiles = GlobalResource<std::map<std::string, ZFile*>, GRT_FILE>::Resource;
+auto& GlobalFiles() { return GlobalResource<std::map<std::string, ZFile*>, GRT_FILE>::Resource(); }
 constexpr auto GlobalRBB = GlobalResource<std::vector<std::function<void()>>, GRT_RBB>::Resource;
 constexpr auto GlobalRAB = GlobalResource<std::vector<std::function<void()>>, GRT_RAB>::Resource;
 
@@ -1506,7 +1506,8 @@ std::map<std::string, T*> ListFiles(const std::string& dir) {
     for (const auto& x : GlobalFiles()) {
         auto f = dynamic_cast<T*>(x.second);
         if (!f) continue;
-        if (StringBeginWith(x.first, prefix_dir)) result[x.first] = f;
+        if (StringBeginWith(x.first, prefix_dir) ||
+                StringBeginWith(f->GetFilePath(), prefix_dir)) result[x.first] = f;
     }
     return result;
 }
@@ -1590,7 +1591,7 @@ template <typename T>
 std::vector<T*> ListTargets(const std::string& dir) {
     std::vector<T*> result;
     std::set<T*> uniq_res;
-    for (auto& x : ListFiles<T>(dir)) {
+    for (auto& x : ListFiles<T>(fs::exists(dir) ? fs::canonical(dir).string() : dir)) {
         if (uniq_res.insert(x.second).second) result.push_back(x.second);
     }
     return result;

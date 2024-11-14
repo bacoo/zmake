@@ -11,10 +11,10 @@ ifeq ($(shell uname), Darwin)
 	LINK_PTHREAD := -lpthread
 endif
 
-BUILD_main.o : BUILD_main.cpp
+BUILD_main.o : BUILD_main.cpp zmake.h  zmake_helper.h  zmake_util.h
 	g++ -std=c++17 -o $@ $< -g -Wall -c -D_GLIBCXX_DEBUG
 
-zmake.o : zmake.cpp zmake.h zmake_util.h
+zmake.o : zmake.cpp zmake.h zmake_helper.h zmake_util.h
 	g++ -std=c++17 -o $@ $< -g -Wall -c -D_GLIBCXX_DEBUG
 
 zmake : main.cpp zmake.o

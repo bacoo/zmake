@@ -1516,7 +1516,7 @@ std::map<std::string, T*> ListFiles(const std::string& dir) {
 }
 
 void BuildAll(bool export_libs, int concurrency_num) {
-    for (auto runner : GlobalRBB()) runner();
+    for (const auto& runner : GlobalRBB()) runner();
     std::vector<ZFile*> files(GlobalTargets().begin(), GlobalTargets().end());
     if (files.empty()) {
         for (auto x : GlobalFiles()) {
@@ -1529,7 +1529,7 @@ void BuildAll(bool export_libs, int concurrency_num) {
     }
     if (1 == concurrency_num) for (auto f : files) f->Build();
     else ConcurrentBuild(files, concurrency_num);
-    for (auto runner : GlobalRAB()) runner();
+    for (const auto& runner : GlobalRAB()) runner();
 
     ProcessDepsRecursively(files, [](ZFile* f) {
         if (fs::exists(f->GetFilePath())) Md5Cache::Get(f->GetFilePath(), false);

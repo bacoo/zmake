@@ -17,7 +17,7 @@ namespace zmake {
 
 int main(int argc, char* argv[]) {
     CommandArgs::Init(argc, argv);
-    if (CommandArgs::Has("-h")) {
+    if (CommandArgs::Has("-h") || CommandArgs::Has("--help")) {
         PrintHelpInfo();
         return 0;
     }
@@ -42,7 +42,7 @@ int main(int argc, char* argv[]) {
     }
 
 #ifdef __MACH__
-    std::string zmake_dir = "$(dirname $(which zmake))";
+    std::string zmake_dir = ExecuteCmd("dirname \"$(which zmake)\"");
 #else
     std::string zmake_dir = std::filesystem::read_symlink("/proc/self/exe").parent_path();
 #endif
@@ -58,7 +58,11 @@ int main(int argc, char* argv[]) {
         "-L" + zmake_lib_dir,
         "-lzmake",
         "-g",
+#ifdef __MACH__
+        "-lpthread",
+#else
         "-Wl,-no-as-needed -lpthread -Wl,-as-needed",
+#endif
     });
 
     auto build_root = *AccessBuildRootDir();

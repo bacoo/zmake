@@ -235,10 +235,7 @@ std::string ConvertToProjectInnerPath(const std::string& p) {
     if ('/' == p.at(0) || '@' == p.at(0)) return p;
     std::string result =
             fs::absolute(p).lexically_relative(*AccessProjectRootDir()).lexically_normal();
-#ifdef __MACH__
-    result = fs::path(result).lexically_relative(fs::current_path());
-#endif
-    if ('/' != result.at(0)) result = "/" + result;
+    if (result.empty() || '/' != result.at(0)) result = "/" + result;
     return result;
 }
 std::string GetBuildPath(const std::string& path) {

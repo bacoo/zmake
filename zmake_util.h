@@ -31,9 +31,8 @@ namespace zmake {
 
 __attribute__((weak, unused))
 void RunWithLock(std::mutex& mtx, std::function<void()> f) {
-    mtx.lock();
+    std::lock_guard<std::mutex> guard(mtx);
     f();
-    mtx.unlock();
 }
 
 struct TaskRunnerPool {
